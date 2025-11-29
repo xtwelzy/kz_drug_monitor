@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- ================= DASHBOARD ================= -->
+<section id="dashboard" class="tab-section active">
+    <div class="page-wrap">
+        <header class="page-header">
+            <h1 class="page-title">
+                <span data-feather="bar-chart-2" class="page-title-icon"></span>
+                <span>Дашборд</span>
+            </h1>
+            <p class="page-subtitle">Общая статистика мониторинга</p>
+        </header>
+
+        <!-- Статистика + ручной скан -->
+        <div class="dashboard-grid">
+            <!-- Статистика -->
+            <div class="stat-card glass-card">
+                <div class="stat-card-inner">
+                    <div>
+                        <div class="stat-title">Всего каналов</div>
+                        <div class="stat-number" id="stat-total">0</div>
+                    </div>
+                    <div class="stat-icon-badge">
+                        <span data-feather="hash"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ручной скан -->
+            <div class="card glass-card">
+                <h2 class="card-title">
+                    <span data-feather="search" class="card-title-icon"></span>
+                    <span>Ручной скан канала</span>
+                </h2>
+                <p class="card-subtitle">
+                    Введите @username или ссылку <code>t.me/...</code>, чтобы добавить канал в очередь сканирования.
+                </p>
+
+                <form id="scan-form" class="scan-form">
+                    <input id="scan-input" class="input scan-input" placeholder="@username или t.me/..." required>
+                    <button class="btn scan-btn" type="submit">Сканировать</button>
+                </form>
+
+                <div id="scan-status" class="scan-status"></div>
+            </div>
+        </div>
+
+        <!-- Последние каналы -->
+        <h2 class="section-title">Последние найденные каналы</h2>
+        <div id="latest-channels" class="channels-list"></div>
+    </div>
+</section>
+
+
+
+<!-- ================= CHANNELS ================= -->
+<section id="channels" class="tab-section">
+    <div class="page-wrap">
+        <header class="page-header">
+            <h1 class="page-title">
+                <span data-feather="users" class="page-title-icon"></span>
+                <span>Все каналы</span>
+            </h1>
+        </header>
+
+        <div class="filters-row">
+            <button class="filter-btn" data-filter="">Все</button>
+            <button class="filter-btn" data-filter="channel">Каналы</button>
+            <button class="filter-btn" data-filter="chat">Чаты</button>
+            <button class="filter-btn" data-filter="unknown">Неизвестно</button>
+        </div>
+
+        <div id="channels-list" class="channels-list"></div>
+    </div>
+</section>
+
+
+
+<!-- ================= MESSAGES ================= -->
+<section id="messages" class="tab-section">
+    <div class="page-wrap">
+        <header class="page-header">
+            <h1 class="page-title">
+                <span data-feather="message-square" class="page-title-icon"></span>
+                <span>Подозрительные сообщения</span>
+            </h1>
+        </header>
+
+        <div class="select-wrap">
+            <select id="message-channel-select" class="select">
+                <!-- Опции подставляются из JS -->
+            </select>
+        </div>
+
+        <div id="messages-table" class="messages-table-wrap"></div>
+    </div>
+</section>
+
+
+
+<!-- ===================== JAVASCRIPT ===================== -->
+<script>
+// какая вкладка сейчас активна
+let currentTab = "dashboard";
+
+
+// ============= TAB SWITCHING =============
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.onclick = () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const tab = btn.getAttribute('data-tab');
+        currentTab = tab;
+
+        document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
+        document.getElementById(tab).classList.add('active');
+
+        if (tab === "dashboard") loadDashboard();
+        if (tab === "channels") loadChannels();
+        if (tab === "messages") loadMessages();
+    };
+});
+
+
+// ============= API HELPER =============
+async function api(url) {
+    const r = await fetch(url);
+    return r.json();
+}
+
+
+
+// ================= DASHBOARD =================
+async function loadDashboard() {
+    const stats = await api("/api/stats");
+    const latest = await api("/api/channels?limit=10");
+
+    // Обновляем число каналов в отдельном спане (для плавности карточки)
+    const totalEl = document.getElementById("stat-total");
+    if (totalEl) {
+        totalEl.textContent = stats.total_active;
+    }
+
+    // Рендер последних каналов
+    const container = document.getElementById("latest-channels");
+    container.innerHTML = latest.map(ch => renderChannelCard(ch, {compact: true})).join("");
+}
+
+
+
+// ================= CHANNELS =================
+async function loadChannels(type = "") {
+    const channels = await api(`/api/channels?type=${type}`);
+
+    document.querySelectorAll(".filter-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.filter === type);
+    });
+
+    const container = document.getElementById("channels-list");
+    container.innerHTML = channels.map(ch => renderChannelCard(ch, {showType: true})).join("");
+}
+
+
+
+// Общий шаблон карточки канала (для дашборда и вкладки "Каналы")
+function renderChannelCard(ch, opts = {}) {
+    const usernameText = ch.username ? '@' + ch.username : 'username отсутствует';
+    const hasUsername = !!ch.username;
+    const typeText = opts.showType ? `<p class="channel-meta">Тип: ${ch.channel_type}</p>` : "";
+
+    const initial = (ch.title || "?").trim()[0] || "?";
+
+    return `
+        <div class="channel-card glass-card">
+            <div class="channel-card-main">
+                <div class="channel-avatar">${initial.toUpperCase()}</div>
+                <div class="channel-info">
+                    <h3 class="channel-title">${ch.title}</h3>
+                    <p class="channel-username ${hasUsername ? "" : "channel-username-missing"}">${usernameText}</p>
+                    ${typeText}
+                </div>
+            </div>
+
+            <div class="channel-actions">
+                ${
+                    hasUsername
+                        ? `
+                        <a class="btn-link"
+                           href="https://t.me/${ch.username}"
+                           target="_blank" rel="noopener noreferrer">
+                            <span data-feather="external-link" class="btn-link-icon"></span>
+                            Открыть в Telegram
+                        </a>
+                        <button class="btn-link" type="button"
+                                onclick="openChannelMessages('${ch.username}')">
+                            <span data-feather="message-square" class="btn-link-icon"></span>
+                            Показать сообщения
+                        </button>`
+                        : `<span class="muted">Нет username — перейти к каналу нельзя</span>`
+                }
+            </div>
+        </div>
+    `;
+}
+
+
+
+// ================= MESSAGES =================
+async function loadMessages(preselectChannel = "") {
+    const messages = await api("/api/messages");
+
+    const select = document.getElementById("message-channel-select");
+    const channels = [...new Set(messages.map(x => x.channel_username))];
+
+    select.innerHTML = `
+        <option value="">Все каналы</option>
+        ${channels.map(c => `<option value="${c}">@${c}</option>`).join("")}
+    `;
+
+    select.onchange = () => loadMessagesFiltered(select.value);
+
+    if (preselectChannel) {
+        select.value = preselectChannel;
+    }
+
+    await loadMessagesFiltered(select.value);
+}
+
+
+async function loadMessagesFiltered(channel) {
+    const msgs = await api(`/api/messages?channel=${channel}`);
+
+    let html = `
+        <table class="messages-table">
+            <thead>
+                <tr>
+                    <th>Время</th>
+                    <th>Канал</th>
+                    <th>Триггеры</th>
+                    <th>Сообщение</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+
+    msgs.forEach(m => {
+        html += `
+            <tr>
+                <td>${m.timestamp}</td>
+                <td>@${m.channel_username}</td>
+                <td>${m.triggers}</td>
+                <td>${m.message_text}</td>
+            </tr>
+        `;
+    });
+
+    html += "</tbody></table>";
+
+    document.getElementById("messages-table").innerHTML = html;
+
+    // Обновляем feather-иконки, если они есть в новых карточках
+    if (window.feather) {
+        window.feather.replace();
+    }
+}
+
+
+
+// ======== ОТКРЫТИЕ СООБЩЕНИЙ КОНКРЕТНОГО КАНАЛА ========
+async function openChannelMessages(username) {
+    if (!username) return;
+
+    currentTab = "messages";
+
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    const msgBtn = document.querySelector('.tab-btn[data-tab="messages"]');
+    if (msgBtn) msgBtn.classList.add('active');
+
+    document.querySelectorAll('.tab-section').forEach(sec => sec.classList.remove('active'));
+    document.getElementById('messages').classList.add('active');
+
+    await loadMessages(username);
+}
+
+
+
+// ================= РУЧНОЙ СКАН (форма на дашборде) =================
+document.getElementById("scan-form").onsubmit = async (e) => {
+    e.preventDefault();
+
+    const input = document.getElementById("scan-input");
+    const text = input.value.trim();
+    if (!text) return;
+
+    const res = await fetch("/api/scan", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({channel:text})
+    });
+
+    const data = await res.json();
+    document.getElementById("scan-status").innerText = data.status;
+    input.value = "";
+};
+
+
+
+// ======== АВТОЗАГРУЗКА ПРИ СТАРТЕ ========
+loadDashboard();
+
+
+// =============== АВТООБНОВЛЕНИЕ АКТИВНОЙ ВКЛАДКИ ===============
+setInterval(() => {
+    try {
+        if (currentTab === "dashboard") {
+            loadDashboard();
+        } else if (currentTab === "channels") {
+            const activeFilter = document.querySelector(".filter-btn.active");
+            const type = activeFilter ? activeFilter.dataset.filter : "";
+            loadChannels(type || "");
+        } else if (currentTab === "messages") {
+            const select = document.getElementById("message-channel-select");
+            const ch = select ? select.value : "";
+            loadMessages(ch || "");
+        }
+    } catch (e) {
+        console.error(e);
+    }
+}, 10000);  // каждые 10 секунд
+
+</script>
+
+{% endblock %}

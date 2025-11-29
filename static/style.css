@@ -1,0 +1,525 @@
+/* ================== ГЛОБАЛ ================== */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+/* Основной контейнер приложения, чтобы не бодаться с Tailwind */
+.layout {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+    color: #1C1C1E;
+}
+
+/* Кастомный скроллбар */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+/* ================== САЙДБАР ================== */
+.sidebar {
+    width: 260px;
+    border-right: 1px solid rgba(148, 163, 184, 0.25);
+    padding: 18px 16px 14px;
+    display: flex;
+    flex-direction: column;
+    background: #ffffff;
+}
+
+.glass-sidebar {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+}
+
+.sidebar-header {
+    padding: 8px 8px 18px;
+}
+
+.sidebar-logo {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.sidebar-logo-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    color: #3b82f6;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 6px;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.sidebar-version {
+    font-size: 12px;
+    color: #6b7280;
+    padding: 6px 10px;
+}
+
+/* Кнопки табов */
+.tab-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    color: #4b5563;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+
+.tab-btn:hover {
+    background: #f3f4f6;
+    border-color: rgba(148, 163, 184, 0.6);
+}
+
+.tab-btn-icon {
+    width: 18px;
+    height: 18px;
+}
+
+.tab-btn.active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+/* ================== КОНТЕНТ ================== */
+.content {
+    flex: 1;
+    padding: 28px 32px;
+    overflow-y: auto;
+}
+
+/* Обёртка страницы для центрирования */
+.page-wrap {
+    max-width: 960px;
+    margin: 0 auto;
+}
+
+/* Заголовок страницы */
+.page-header {
+    margin-bottom: 20px;
+}
+
+.page-title {
+    display: flex;
+    align-items: center;
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.page-title-icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 10px;
+    color: #3b82f6;
+}
+
+.page-subtitle {
+    margin-top: 4px;
+    font-size: 14px;
+    color: #6b7280;
+}
+
+/* Секции (табы) */
+.tab-section {
+    display: none;
+}
+
+.tab-section.active {
+    display: block;
+}
+
+/* ================== КАРТОЧКИ ================== */
+.glass-card,
+.card,
+.channel-card,
+.stat-card {
+    background: rgba(255, 255, 255, 0.85);
+    border-radius: 18px;
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+    padding: 18px 20px;
+}
+
+.glass-card {
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
+.card-title {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: #111827;
+}
+
+.card-title-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    color: #3b82f6;
+}
+
+.card-subtitle {
+    font-size: 13px;
+    color: #6b7280;
+    margin-bottom: 12px;
+}
+
+/* GRID для карточки статистики + ручного скана */
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 2fr);
+    gap: 16px;
+    margin-bottom: 28px;
+}
+
+@media (max-width: 900px) {
+    .dashboard-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+/* Статистика */
+.stat-card-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.stat-title {
+    font-size: 13px;
+    color: #6b7280;
+}
+
+.stat-number {
+    font-size: 32px;
+    font-weight: 700;
+    margin-top: 4px;
+}
+
+.stat-icon-badge {
+    background: #dbeafe;
+    color: #1d4ed8;
+    border-radius: 999px;
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* ================== РУЧНОЙ СКАН ================== */
+.scan-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 520px;
+    margin-top: 6px;
+}
+
+.scan-input {
+    flex: 1;
+}
+
+.scan-btn {
+    white-space: nowrap;
+}
+
+.scan-status {
+    margin-top: 8px;
+    font-size: 14px;
+    color: #4b5563;
+}
+
+/* ================== INPUT / BUTTON / SELECT ================== */
+.input {
+    width: 100%;
+    padding: 9px 11px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    font-size: 14px;
+    background: #f9fafb;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background-color 0.15s ease;
+}
+
+.input:focus {
+    outline: none;
+    border-color: #3b82f6;
+    background: #ffffff;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.2);
+}
+
+.btn {
+    background: #3b82f6;
+    border: 1px solid #2563eb;
+    color: #ffffff;
+    padding: 9px 14px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.btn:hover {
+    background: #2563eb;
+    box-shadow: 0 12px 30px rgba(37, 99, 235, 0.35);
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.select-wrap {
+    max-width: 360px;
+    margin-bottom: 14px;
+}
+
+.select {
+    width: 100%;
+    padding: 9px 12px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    font-size: 14px;
+}
+
+/* ================== ФИЛЬТРЫ ================== */
+.filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.filter-btn {
+    padding: 7px 14px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    background: #ffffff;
+    font-size: 13px;
+    cursor: pointer;
+    color: #4b5563;
+    transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.filter-btn:hover {
+    background: #f3f4f6;
+}
+
+.filter-btn.active {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1d4ed8;
+}
+
+/* ================== КАНАЛЫ ================== */
+.section-title {
+    margin-top: 18px;
+    margin-bottom: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.channels-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.channel-card {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.channel-card-main {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+}
+
+.channel-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
+    background: #dbeafe;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    color: #1d4ed8;
+    flex-shrink: 0;
+}
+
+.channel-info {
+    flex: 1;
+}
+
+.channel-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #111827;
+}
+
+.channel-username {
+    font-size: 13px;
+    color: #6b7280;
+    margin-top: 2px;
+}
+
+.channel-username-missing {
+    color: #b91c1c;
+}
+
+.channel-meta {
+    font-size: 12px;
+    color: #9ca3af;
+    margin-top: 4px;
+}
+
+/* кнопки под карточкой канала */
+.channel-actions {
+    margin-top: 4px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* ссылка-кнопка */
+.btn-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    border: 1px solid #e5e7eb;
+    font-size: 13px;
+    text-decoration: none;
+    background: #ffffff;
+    color: #2563eb;
+    cursor: pointer;
+    transition: background 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.btn-link-icon {
+    width: 14px;
+    height: 14px;
+}
+
+.btn-link:hover {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    box-shadow: 0 10px 25px rgba(148, 163, 184, 0.3);
+    transform: translateY(-1px);
+}
+
+.btn-link:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.muted {
+    font-size: 13px;
+    color: #9ca3af;
+}
+
+/* ================== ТАБЛИЦА СООБЩЕНИЙ ================== */
+.messages-table-wrap {
+    border-radius: 18px;
+    overflow: hidden;
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+}
+
+.messages-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #ffffff;
+}
+
+.messages-table th {
+    background: #f9fafb;
+    padding: 10px 12px;
+    font-weight: 600;
+    font-size: 13px;
+    border-bottom: 1px solid #e5e7eb;
+    text-align: left;
+    color: #4b5563;
+}
+
+.messages-table td {
+    padding: 9px 12px;
+    font-size: 13px;
+    border-bottom: 1px solid #edf2f7;
+    vertical-align: top;
+}
+
+.messages-table tr:nth-child(even) {
+    background: #f9fafb;
+}
+
+.messages-table tr:hover {
+    background: #eff6ff;
+}
+
+/* ================== АДАПТИВ ================== */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 220px;
+    }
+
+    .content {
+        padding: 20px 18px;
+    }
+
+    .page-title {
+        font-size: 22px;
+    }
+}
